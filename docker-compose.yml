@@ -1,0 +1,86 @@
+name: rentcar-ua
+
+services:
+  # 1. База даних PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: rentcar-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:?Set POSTGRES_USER in .env} -d ${POSTGRES_DB:?Set POSTGRES_DB in .env}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Redis для кешування та черг
+  redis:
+    image: redis:7-alpine
+    container_name: rentcar-redis
+    restart: unless-stopped
+
+  # 3. Основний Python Core API (FastAPI)
+  python-api:
+    build:
+      context: ./backend-python
+      dockerfile: Dockerfile
+    image: rentcar-ua-python-api:latest
+    container_name: rentcar-python-api
+    environment:
+      TZ: Europe/Kyiv
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      REDIS_URL: redis://redis:6379/0
+      PHP_SERVICE_URL: http://php-service:80
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["http://localhost:8080"]}
+      ADMIN_DEMO_KEY: ${ADMIN_DEMO_KEY:-rentcar-demo-admin-course-key}
+      RENTAL_DEFAULT_TIME_ZONE: ${RENTAL_DEFAULT_TIME_ZONE:-Europe/Kyiv}
+      RENTAL_LOCATIONS: '${RENTAL_LOCATIONS:-[]}'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/ready >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 4s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  # 4. PHP Сервіс генерації документів та договорів
+  php-service:
+    build:
+      context: ./backend-php
+      dockerfile: Dockerfile
+    image: rentcar-ua-php-service:latest
+    container_name: rentcar-php-service
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # 5. Клієнтський Frontend & Nginx API Gateway
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rentcar-ua-frontend:latest
+    container_name: rentcar-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - python-api
+      - php-service
+    restart: unless-stopped
+
+volumes:
+  pgdata:

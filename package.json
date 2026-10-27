@@ -1,0 +1,19 @@
+{
+  "name": "rentcar-ua-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "10.5.0",
+    "postcss": "8.5.15",
+    "sucrase": "3.35.1",
+    "tailwindcss": "3.4.19",
+    "terser": "5.43.1"
+  }
+}

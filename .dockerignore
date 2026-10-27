@@ -1,0 +1,15 @@
+.git
+.netlify
+node_modules/
+dist/
+*.md
+.env
+.env.*
+**/.env
+**/.env.*
+backend-python/.env*
+backend-php/.env*
+backups/
+*.dump
+__pycache__/
+*.py[cod]

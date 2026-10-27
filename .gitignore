@@ -1,0 +1,10 @@
+backups/
+*.dump
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.netlify/
+node_modules/
+dist/

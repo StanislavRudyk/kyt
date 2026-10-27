@@ -1,0 +1,584 @@
+/* ===== Veloce — global stylesheet ===== */
+
+:root {
+  /* RentCar design system: graphite surfaces, warm metallic accent. */
+  --bg: #0a0b0d;
+  --ink: #f7f6f2;
+  --muted: #a6a39d;
+  --gold: #c89b4a;
+  --gold-soft: #e0bd78;
+  --surface: #121416;
+  --surface-raised: #191b1d;
+  --line: rgba(255,255,255,.12);
+  --line-strong: rgba(255,255,255,.2);
+  --text-secondary: #b5b3ae;
+  --text-tertiary: #85837e;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-display: 'Oswald', sans-serif;
+  --text-xs: .75rem;
+  --text-sm: .875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --shadow-card: 0 18px 48px -28px rgba(0,0,0,.8);
+  --shadow-menu: 0 12px 40px rgba(0,0,0,.5);
+  --video-dim: 0.72;
+  --grain-opacity: 0.07;
+  --ghost-opacity: 1;
+  --tagline-scale: 1;
+}
+
+.hero-tagline { font-size: calc(40px * var(--tagline-scale)); }
+@media (min-width: 480px) { .hero-tagline { font-size: calc(48px * var(--tagline-scale)); } }
+@media (min-width: 640px) { .hero-tagline { font-size: calc(56px * var(--tagline-scale)); } }
+@media (min-width: 768px) { .hero-tagline { font-size: calc(64px * var(--tagline-scale)); } }
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  letter-spacing: -0.006em;
+  line-height: 1.5;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga" 1, "calt" 1, "cv11" 1;
+}
+
+/* Display face — Oswald carries the poster headlines. Medium weight + tight
+   tracking restores the airy presence the layout was tuned for under Bebas. */
+.font-display {
+  font-family: var(--font-display) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.005em;
+}
+
+/* Per-char split for GSAP headline reveal */
+.split-word { display: inline-block; }
+.split-char {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 1 !important;
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Marquee */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 60s linear infinite;
+}
+.marquee-mask:hover .marquee-track { animation-play-state: paused; }
+
+/* Ken Burns — cinematic stand-in for the video plates */
+@keyframes kenburns {
+  0%   { transform: scale(1.02) translate(0, 0); }
+  100% { transform: scale(1.16) translate(-1.5%, -1.5%); }
+}
+.kenburns { animation: kenburns 22s ease-in-out infinite alternate; }
+.kenburns-b { animation: kenburns 26s ease-in-out infinite alternate-reverse; }
+
+/* Decorative ghost word — sized to sit fully inside the frame, reads as type not glitch */
+.ghost-word {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  font-size: clamp(60px, 15vw, 212px);
+  line-height: 0.8;
+  letter-spacing: 0.04em;
+  margin-right: -0.04em; /* optical: cancel trailing tracking so it centres true */
+  opacity: var(--ghost-opacity);
+  background: linear-gradient(178deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.16) 46%, rgba(255,255,255,0.05) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  user-select: none;
+}
+
+/* Cinematic film grain — fixed full-viewport overlay */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 55;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  animation: grainshift 0.5s steps(2) infinite;
+}
+@keyframes grainshift {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-4%, 3%); }
+  100% { transform: translate(3%, -2%); }
+}
+
+/* Cinematic vignette for video bands */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 80% at 50% 42%, transparent 45%, rgba(0,0,0,0.55) 100%);
+}
+
+/* Branded fallback for any image that fails to load */
+.img-fallback {
+  background-color: #141414;
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 11px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.img-fallback span {
+  font-family: 'Inter', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+/* Smart images fade in once decoded — no jarring pop-in */
+.img-smart { opacity: 0; transition: opacity 0.8s cubic-bezier(0.22,0.61,0.36,1); }
+.img-smart.is-loaded { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .img-smart { opacity: 1; transition: none; }
+}
+
+/* Eyebrow / kicker — small caps label with a leading gold hairline */
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85em;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.kicker::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: var(--gold);
+  flex: none;
+}
+.kicker.is-centered { justify-content: center; }
+.kicker.is-centered::after {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: var(--gold);
+  flex: none;
+}
+
+/* Hairline that draws in on hover */
+.rule-grow { position: relative; }
+.rule-grow::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -2px;
+  height: 1px; width: 0;
+  background: var(--gold);
+  transition: width 0.5s cubic-bezier(0.22,0.61,0.36,1);
+}
+.rule-grow:hover::after { width: 100%; }
+
+/* ============ Premium button system ============ */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 48px;
+  height: 52px;
+  padding: 0 1.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.4s ease, border-color 0.4s ease, transform 0.4s cubic-bezier(0.22,0.61,0.36,1);
+}
+.btn:active { transform: translateY(1px) scale(0.99); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn:disabled::before { display: none; }
+
+/* Primary — solid, with a gold wipe that sweeps in from the bottom */
+.btn-primary { background: #fff; color: #0a0a0a; }
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--gold);
+  transform: translateY(101%);
+  transition: transform 0.5s cubic-bezier(0.76,0,0.24,1);
+}
+.btn-primary:hover::before { transform: translateY(0); }
+
+/* Dark primary (light sections) */
+.btn-dark { background: #0a0a0a; color: #fff; }
+.btn-dark::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: var(--gold);
+  transform: translateY(101%);
+  transition: transform 0.5s cubic-bezier(0.76,0,0.24,1);
+}
+.btn-dark:hover { color: #0a0a0a; }
+.btn-dark:hover::before { transform: translateY(0); }
+
+/* Ghost — outline that fills on hover */
+.btn-ghost { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
+.btn-ghost::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: rgba(255,255,255,0.06);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.45s cubic-bezier(0.76,0,0.24,1);
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.6); }
+.btn-ghost:hover::before { transform: scaleY(1); }
+
+/* Dual-arrow swap — wrap two arrows in .btn-arrows */
+.btn-arrows {
+  position: relative;
+  display: inline-block;
+  width: 17px; height: 17px;
+  overflow: hidden;
+}
+.btn-arrows svg { position: absolute; inset: 0; transition: transform 0.42s cubic-bezier(0.76,0,0.24,1); }
+.btn-arrows .a-out { transform: translateX(0); }
+.btn-arrows .a-in  { transform: translateX(-130%); }
+.btn:hover .btn-arrows .a-out { transform: translateX(130%); }
+.btn:hover .btn-arrows .a-in  { transform: translateX(0); }
+
+/* ============ Circular icon button ============ */
+.icon-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.4s ease, transform 0.4s cubic-bezier(0.22,0.61,0.36,1);
+}
+.icon-btn::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: var(--gold);
+  transform: scale(0);
+  border-radius: 999px;
+  transition: transform 0.42s cubic-bezier(0.76,0,0.24,1);
+}
+.icon-btn:hover { color: #0a0a0a; }
+.icon-btn:hover::before { transform: scale(1); }
+.icon-btn:hover svg { transform: translate(2px,-2px); }
+.icon-btn svg { transition: transform 0.4s cubic-bezier(0.22,0.61,0.36,1); }
+
+/* ============ Animated logo mark ============ */
+.logo-mark { transition: transform 0.6s cubic-bezier(0.22,0.61,0.36,1); transform-origin: 50% 50%; }
+.logo-link:hover .logo-mark { transform: scale(1.12); }
+
+/* ============ Load / entrance animations ============ */
+@keyframes fade-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-up   { from { opacity: 0; transform: translateY(20px); }  to { opacity: 1; transform: translateY(0); } }
+@keyframes mark-pop  { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+
+.nav-enter { animation: fade-down 0.9s cubic-bezier(0.22,0.61,0.36,1) both; }
+.mark-enter { animation: mark-pop 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
+
+/* Live scroll-cue: a dot that travels down the line */
+.scroll-dot {
+  width: 4px; height: 4px; border-radius: 999px; background: var(--gold);
+  animation: scroll-travel 2s cubic-bezier(0.76,0,0.24,1) infinite;
+}
+@keyframes scroll-travel {
+  0% { transform: translateY(-10px); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(26px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-enter, .mark-enter, .scroll-dot { animation: none !important; }
+  .kenburns, .kenburns-b, .grain, .marquee-track { animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+::selection { background: var(--gold); color: #0a0a0a; }
+
+/* Keyboard focus — contrast ring remains visible on light and dark surfaces. */
+:focus-visible {
+  outline: 2px solid #fff !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #111 !important;
+}
+.btn:focus-visible,
+.icon-btn:focus-visible { outline-offset: 3px; }
+.field:focus-visible,
+.range:focus-visible,
+select:focus-visible { outline-offset: 3px; }
+.twk-panel :focus-visible {
+  outline: 2px solid #111 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #fff !important;
+}
+
+/* ============ Scroll progress bar ============ */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px; width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: var(--gold);
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* ============ IntersectionObserver reveal (ticker-independent) ============ */
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.45s cubic-bezier(0.22,0.61,0.36,1), transform 0.45s cubic-bezier(0.22,0.61,0.36,1);
+  will-change: opacity, transform;
+}
+.reveal.in { opacity: 1; transform: none; }
+.reveal-left { transform: translateX(-14px); }
+.reveal-left.in { transform: none; }
+.reveal-right { transform: translateX(14px); }
+.reveal-right.in { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-left, .reveal-right { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* ============ Elevated dark card material ============
+   A crafted surface: faint top-down sheen, hairline border, a 1px inner
+   highlight along the top edge, and a soft ambient drop shadow so dark
+   cards read as objects with depth rather than flat fills. */
+.card-elev {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 38%, rgba(255,255,255,0.01) 100%),
+    #0c0c0c;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255,255,255,0.07),
+    0 2px 6px rgba(0,0,0,0.4),
+    0 32px 64px -28px rgba(0,0,0,0.75);
+}
+
+/* ============ Premium range slider ============ */
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  accent-color: var(--gold);
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  background: #0a0a0a;
+  border: 3px solid var(--gold);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  transition: transform 0.2s ease;
+}
+.range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+}
+.range::-webkit-slider-thumb:hover { transform: scale(1.12); }
+.range::-moz-range-thumb {
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  background: #0a0a0a;
+  border: 3px solid var(--gold);
+}
+.range::-moz-range-track {
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+}
+.range-fill {
+  height: 2px;
+  background: var(--gold);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+/* ============ Cinematic media grade ============
+   One unified colour treatment across every photo + video so the mixed
+   source imagery reads as a single, art-directed brand world: gentle
+   desaturation, lifted contrast, and a faint warm cast tied to the gold. */
+.media-grade {
+  filter: saturate(0.85) contrast(1.07) brightness(0.965) sepia(0.09) hue-rotate(-6deg);
+}
+
+/* ============ Pinned horizontal process ============ */
+.hpanel { flex: 0 0 auto; }
+
+/* hide scrollbar on filter rails */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ============ Dark form fields ============ */
+.field {
+  width: 100%;
+  height: 50px;
+  padding: 0 15px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.field::placeholder { color: rgba(255,255,255,0.32); }
+.field:focus { border-color: var(--gold); background: rgba(255,255,255,0.06); }
+.field option { background: #0a0a0a; }
+textarea.field { height: auto; padding-top: 12px; resize: vertical; line-height: 1.5; }
+
+/* selectable chip / tile */
+.tile {
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+.tile:hover { border-color: rgba(255,255,255,0.32); }
+.tile.is-active { border-color: var(--gold); background: rgba(203,157,6,0.07); }
+
+/* Shared interaction language for every page. */
+button, input, select, textarea { font: inherit; }
+button:not(:disabled), [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+a { text-underline-offset: .22em; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--gold); }
+.field:disabled, select:disabled { opacity: .55; cursor: not-allowed; }
+.text-muted { color: var(--text-secondary); }
+.surface-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); }
+.surface-panel-raised { background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-card); }
+@media (hover: hover) { .tile:hover { transform: translateY(-1px); } }
+:where(h1, h2, h3) { text-wrap: balance; }
+:where(p, li) { text-wrap: pretty; }
+/* Muted body copy must still clear readable contrast on the product surfaces. */
+.text-white\/35, .text-white\/40, .text-white\/45, .text-white\/50 {
+  color: rgba(255,255,255,.62) !important;
+}
+.text-black\/40, .text-black\/45, .text-black\/50, .text-black\/55 {
+  color: rgba(0,0,0,.62) !important;
+}
+@media (max-width: 639px) {
+  .kicker { font-size: 10px; letter-spacing: .18em; gap: .65em; }
+  .kicker::before, .kicker.is-centered::after { width: 18px; }
+}
+
+/* Thin premium scrollbar */
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* ============ Branded preloader ============
+   Static markup in each shell so it paints instantly (before React/Babel
+   compiles), then auto-dismisses the moment the app mounts. */
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  transition: opacity 0.7s ease;
+}
+#preloader.pl-hide { opacity: 0; pointer-events: none; }
+.pl-inner { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.pl-mark { width: 56px; height: 56px; animation: pl-pulse 1.7s ease-in-out infinite; }
+@keyframes pl-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.pl-bar {
+  width: 132px; height: 2px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pl-bar span {
+  display: block; height: 100%; width: 38%;
+  background: var(--gold);
+  border-radius: 2px;
+  animation: pl-load 1.15s cubic-bezier(0.6,0,0.2,1) infinite;
+}
+@keyframes pl-load {
+  0% { transform: translateX(-130%); }
+  100% { transform: translateX(355%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pl-mark, .pl-bar span { animation: none; }
+}
+
+/* ============ Page transitions ============
+   Exit: fade the whole viewport to brand-black before a cross-page nav, so
+   the next page's (black) preloader picks up seamlessly — no white flash.
+   Enter: content fades in once the app mounts. */
+#page-exit {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.42s ease;
+}
+#page-exit.on { opacity: 1; }
+
+#root.ready { animation: page-in 0.6s ease both; }
+@keyframes page-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  #page-exit { transition: none; }
+  #root.ready { animation: none; }
+}
